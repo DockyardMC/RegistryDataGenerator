@@ -1,3 +1,5 @@
+package io.github.dockyardmc.registrydatagenerator
+
 import com.google.common.base.CaseFormat
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core.Registry

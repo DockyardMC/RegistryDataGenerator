@@ -1,9 +1,6 @@
 package io.github.dockyardmc.registrydatagenerator.generators
 
-import getKeyOrThrow
-import getPropertyTypeName
-import getWorld
-import io.github.dockyardmc.registrydatagenerator.DataGenerator
+import io.github.dockyardmc.registrydatagenerator.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -12,13 +9,14 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.world.level.EmptyBlockGetter
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import translate
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.zip.GZIPOutputStream
 
 class BlockRegistryGenerator : DataGenerator {
 
     val blocks = mutableListOf<RegistryBlock>()
-    val file = File("./out/blocks.json")
+    val file = File("./out/block_registry.json.gz")
 
     override fun run() {
         val blockRegistry = getWorld().registryAccess().registry(Registries.BLOCK)
@@ -32,13 +30,11 @@ class BlockRegistryGenerator : DataGenerator {
             val lightEmission = defaultBlockState.lightEmission
             val sounds = RegistryBlockSounds(
                 breakSound = "minecraft:${defaultBlockState.soundType.breakSound.location.path}",
-                hitSound = "minecraft:${defaultBlockState.soundType.breakSound.location.path}",
-                placeSound = "minecraft:${defaultBlockState.soundType.breakSound.location.path}",
-                fallSound = "minecraft:${defaultBlockState.soundType.breakSound.location.path}",
-                walkSound = "minecraft:${defaultBlockState.soundType.breakSound.location.path}",
+                hitSound = "minecraft:${defaultBlockState.soundType.hitSound.location.path}",
+                placeSound = "minecraft:${defaultBlockState.soundType.placeSound.location.path}",
+                fallSound = "minecraft:${defaultBlockState.soundType.fallSound.location.path}",
+                walkSound = "minecraft:${defaultBlockState.soundType.stepSound.location.path}",
             )
-            val isTransparent = !defaultBlockState.isSolid
-            val renderShape = defaultBlockState.renderShape.name
             val isBlockEntity = defaultBlockState.hasBlockEntity()
             val lightFilter = defaultBlockState.getLightBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO)
             val isAir = defaultBlockState.isAir
@@ -54,9 +50,18 @@ class BlockRegistryGenerator : DataGenerator {
             val minBlockStateId = Block.getId(states.first())
             val maxBlockStateId = Block.getId(states.last())
 
-            val possibleBlockStates = mutableListOf<RegistryBlockState>()
+            val tags = defaultBlockState.tags.map { "minecraft:${it.location.path}" }.toList()
+
+            val possibleBlockStates = mutableMapOf<String, Int>()
+            val blockStateList = mutableListOf<RegistryBlockState>()
+            states.forEach {
+                val stateId: Int = Block.BLOCK_STATE_REGISTRY.getId(it)
+                val stateString: String = it.toString().replace("Block{", "").replace("}", "")
+                possibleBlockStates[stateString] = stateId
+            }
+
             properties.forEach { property ->
-                val name = property.getName()
+                val name = property.name
                 val type = getPropertyTypeName(property)
                 val values = mutableListOf<String>()
                 if(property !is BooleanProperty) {
@@ -65,8 +70,7 @@ class BlockRegistryGenerator : DataGenerator {
                     }
                 }
                 val valuesArray = if(values.isEmpty()) null else values
-                possibleBlockStates.add(
-
+                blockStateList.add(
                     RegistryBlockState(name, type, valuesArray)
                 )
             }
@@ -78,8 +82,6 @@ class BlockRegistryGenerator : DataGenerator {
                 destroyTime = destroyTime,
                 isSignalSource = isSignalSource,
                 lightEmission = lightEmission,
-                isTransparent = isTransparent,
-                renderShape = renderShape,
                 isBlockEntity = isBlockEntity,
                 lightFilter = lightFilter,
                 isAir = isAir,
@@ -88,18 +90,28 @@ class BlockRegistryGenerator : DataGenerator {
                 isFlammable = isFlammable,
                 canOcclude = canOcclude,
                 replaceable = replaceable,
-                states = possibleBlockStates,
+                states = blockStateList,
                 defaultBlockStateId = defaultBlockStateId,
                 minBlockStateId = minBlockStateId,
                 maxBlockStateId = maxBlockStateId,
-                sounds = sounds
+                sounds = sounds,
+                tags = tags,
+                possibleStates = possibleBlockStates
             )
             blocks.add(registryBlock)
         }
-        file.writeText(Json.encodeToString<List<RegistryBlock>>(blocks))
+
+        val encodedJson = Json.encodeToString<List<RegistryBlock>>(blocks)
+        val compressedData = ByteArrayOutputStream()
+
+        val gzipOutputStream = GZIPOutputStream(compressedData)
+
+        gzipOutputStream.write(encodedJson.toByteArray())
+        gzipOutputStream.close()
+
+        file.writeBytes(compressedData.toByteArray())
     }
 }
-
 
 @Serializable
 data class RegistryBlock(
@@ -109,8 +121,6 @@ data class RegistryBlock(
     val destroyTime: Float,
     val isSignalSource: Boolean,
     val lightEmission: Int,
-    val isTransparent: Boolean,
-    val renderShape: String,
     val isBlockEntity: Boolean,
     val lightFilter: Int,
     val isAir: Boolean,
@@ -123,7 +133,9 @@ data class RegistryBlock(
     val defaultBlockStateId: Int,
     val minBlockStateId: Int,
     val maxBlockStateId: Int,
-    val sounds: RegistryBlockSounds
+    val sounds: RegistryBlockSounds,
+    val tags: List<String>,
+    val possibleStates: Map<String, Int>,
 )
 
 @Serializable
@@ -139,5 +151,5 @@ data class RegistryBlockSounds(
 data class RegistryBlockState(
     val name: String,
     val type: String,
-    val values: List<String>? = null
+    val values: List<String>? = null,
 )

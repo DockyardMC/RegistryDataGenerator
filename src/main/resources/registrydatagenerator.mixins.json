@@ -4,6 +4,9 @@
   "package": "io.github.dockyardmc.registrydatagenerator.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AmbientParticleSettingsAccessor",
+    "EntityAttachmentsAccessor",
+    "EntityTypeAccessor",
     "EulaMixin",
     "ServerLoadMixin"
   ],
