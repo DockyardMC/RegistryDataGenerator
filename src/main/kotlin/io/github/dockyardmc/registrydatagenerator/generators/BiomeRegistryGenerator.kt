@@ -3,15 +3,16 @@ package io.github.dockyardmc.registrydatagenerator.generators
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import io.github.dockyardmc.registrydatagenerator.getWorld
 import io.github.dockyardmc.registrydatagenerator.mixin.AmbientParticleSettingsAccessor
+import io.github.dockyardmc.registrydatagenerator.mixin.BiomeAccessor
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
+import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.GZIPOutputStream
+import kotlin.jvm.optionals.getOrNull
 
 class BiomeRegistryGenerator: DataGenerator {
 
@@ -22,9 +23,11 @@ class BiomeRegistryGenerator: DataGenerator {
         val registry = getWorld().registryAccess().registry(Registries.BIOME).get()
         val particleRegistry = getWorld().registryAccess().registry(Registries.PARTICLE_TYPE).get()
 
-        val protocolIdCounter = AtomicInteger()
-
         registry.forEach { biome ->
+
+            val climateAccessor = (biome as BiomeAccessor).climateSettings
+            val downfall = climateAccessor.downfall
+            val temperatureModifier = climateAccessor.temperatureModifier
 
             val particleIsPresent = biome.ambientParticle.isPresent
             val particleKey = if(particleIsPresent) particleRegistry.getKey(biome.ambientParticle.get().options.type) else null
@@ -52,12 +55,15 @@ class BiomeRegistryGenerator: DataGenerator {
 
             val registryBiome = Biome(
                 identifier = registry.getKey(biome)!!.toString(),
-                downfall = biome.getPrecipitationAt(BlockPos.ZERO).name.lowercase(),
+                downfall = downfall,
                 hasRain = biome.hasPrecipitation(),
                 temperature = biome.baseTemperature,
+                temperatureModifier = if(temperatureModifier == net.minecraft.world.level.biome.Biome.TemperatureModifier.NONE) null else temperatureModifier.name.lowercase(),
                 effects = Effects(
                     fogColor = biome.fogColor,
-                    foliageColor = biome.foliageColor,
+                    grassColor = biome.specialEffects.grassColorOverride.getOrNull(),
+                    grassColorModifier = if(biome.specialEffects.grassColorModifier == GrassColorModifier.NONE) null else biome.specialEffects.grassColorModifier.name.lowercase(),
+                    foliageColor = if(biome.foliageColor == 0) null else biome.foliageColor,
                     skyColor = biome.skyColor,
                     waterColor = biome.waterColor,
                     waterFogColor = biome.waterFogColor,
@@ -67,7 +73,6 @@ class BiomeRegistryGenerator: DataGenerator {
                     music = music,
                     ambientLoop = if(biome.ambientLoop.isPresent) biome.ambientLoop.get().registeredName else null
                 ),
-                protocolId =protocolIdCounter.getAndIncrement()
             )
             biomes.add(registryBiome)
         }
@@ -87,11 +92,11 @@ class BiomeRegistryGenerator: DataGenerator {
 @Serializable
 data class Biome(
     var identifier: String,
-    val downfall: String = "rain",
+    val downfall: Float,
     var effects: Effects,
-    val hasRain: Boolean = false,
-    val temperature: Float = 1f,
-    val protocolId: Int,
+    val hasRain: Boolean,
+    val temperature: Float,
+    val temperatureModifier: String? = null,
 )
 
 @Serializable
@@ -105,7 +110,9 @@ data class Effects(
     val particle: BiomeParticle? = null,
     val skyColor: Int,
     val waterColor: Int,
-    val waterFogColor: Int
+    val waterFogColor: Int,
+    val grassColorModifier: String? = null,
+    val grassColor: Int? = null
 )
 
 @Serializable

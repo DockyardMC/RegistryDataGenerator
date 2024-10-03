@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AmbientParticleSettingsAccessor",
+    "BiomeAccessor",
+    "BiomeMixin",
     "EntityAttachmentsAccessor",
     "EntityTypeAccessor",
     "EulaMixin",

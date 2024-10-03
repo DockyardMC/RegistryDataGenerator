@@ -57,8 +57,6 @@ class EntityRegistryGenerator: DataGenerator {
 
             val displayName = entity.description.string
 
-            val protocolId = protocolIdCounter.getAndIncrement()
-
             val entityType = EntityType(
                 identifier = identifier,
                 displayName = displayName,
@@ -70,7 +68,7 @@ class EntityRegistryGenerator: DataGenerator {
                 noDespawnDistance = noDespawnDistance,
                 immuneToFire = fireImmune,
                 immuneBlocks = immuneBlocks,
-                dimensions = dimensions, protocolId = protocolId
+                dimensions = dimensions,
             )
             entityTypes.add(entityType)
         }
@@ -99,7 +97,6 @@ data class EntityType(
     val immuneToFire: Boolean,
     val immuneBlocks: List<String>,
     val dimensions: EntityDimensions,
-    val protocolId: Int,
 )
 
 @Serializable

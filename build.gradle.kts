@@ -26,6 +26,7 @@ java {
 
 loom {
     splitEnvironmentSourceSets()
+    accessWidenerPath = file("src/main/resources/registry-data-generator.accesswidener")
 
     mods {
         register("registrydatagenerator") {
