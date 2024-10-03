@@ -2,14 +2,11 @@ package io.github.dockyardmc.registrydatagenerator
 
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.registrydatagenerator.generators.BiomeRegistryGenerator
-import io.github.dockyardmc.registrydatagenerator.generators.BlockRegistryGenerator
-import io.github.dockyardmc.registrydatagenerator.generators.EntityRegistryGenerator
-import io.github.dockyardmc.registrydatagenerator.generators.SoundRegistryGenerator
+import io.github.dockyardmc.registrydatagenerator.generators.*
 
 object DataGenerators {
 
-    private val generators: MutableList<DataGenerator> = mutableListOf(BlockRegistryGenerator(), BiomeRegistryGenerator(), EntityRegistryGenerator(), SoundRegistryGenerator())
+    private val generators: MutableList<DataGenerator> = mutableListOf(BlockRegistryGenerator(), BiomeRegistryGenerator(), EntityRegistryGenerator(), SoundRegistryGenerator(), ItemRegistryGenerator())
 
     fun run() {
         generators.forEach {
