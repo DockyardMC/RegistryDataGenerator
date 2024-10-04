@@ -3,7 +3,6 @@ package io.github.dockyardmc.registrydatagenerator.generators
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import io.github.dockyardmc.registrydatagenerator.getWorld
-import io.github.dockyardmc.registrydatagenerator.toByteArraySafe
 import io.netty.buffer.Unpooled
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -17,11 +16,11 @@ import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.charset.Charset
 import java.util.zip.GZIPOutputStream
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-class ItemRegistryGenerator: DataGenerator {
+class ItemRegistryGenerator : DataGenerator {
 
     private val items: MutableList<Item> = mutableListOf()
     private val file = File("./out/item_registry.json.gz")
@@ -51,41 +50,46 @@ class ItemRegistryGenerator: DataGenerator {
             log(" ")
             log("$identifier:")
             components.forEach componentLoop@{ component ->
-                when(component.type.toString()) {
+                when (component.type.toString()) {
                     "minecraft:max_stack_size" -> {
                         val maxStackSize = component.value as Int
-                        if(maxStackSize == 64)return@componentLoop
-                    }
-                    "minecraft:attribute_modifiers" -> {
-                        val attributes = component.value as ItemAttributeModifiers
-                        if(attributes.modifiers.isEmpty())return@componentLoop
-                    }
-                    "minecraft:enchantments" -> {
-                        val enchantments = component.value as ItemEnchantments
-                        if(enchantments.isEmpty) return@componentLoop
-                    }
-                    "minecraft:lore" -> {
-                        val lore = component.value as ItemLore
-                        if(lore.lines.size == 0) return@componentLoop
-                    }
-                    "minecraft:repair_cost" -> {
-                        val repairCost = component.value as Int
-                        if(repairCost == 0) return@componentLoop
-                    }
-                    "minecraft:rarity" -> {
-                        val rarity = component.value as Rarity
-                        if(rarity == Rarity.COMMON) return@componentLoop
+                        if (maxStackSize == 64) return@componentLoop
                     }
 
+                    "minecraft:attribute_modifiers" -> {
+                        val attributes = component.value as ItemAttributeModifiers
+                        if (attributes.modifiers.isEmpty()) return@componentLoop
+                    }
+
+                    "minecraft:enchantments" -> {
+                        val enchantments = component.value as ItemEnchantments
+                        if (enchantments.isEmpty) return@componentLoop
+                    }
+
+                    "minecraft:lore" -> {
+                        val lore = component.value as ItemLore
+                        if (lore.lines.size == 0) return@componentLoop
+                    }
+
+                    "minecraft:repair_cost" -> {
+                        val repairCost = component.value as Int
+                        if (repairCost == 0) return@componentLoop
+                    }
+
+                    "minecraft:rarity" -> {
+                        val rarity = component.value as Rarity
+                        if (rarity == Rarity.COMMON) return@componentLoop
+                    }
                 }
+
                 val protocolId = componentRegistry.getId(component.type)
 
                 val buffer = RegistryFriendlyByteBuf(Unpooled.buffer(), getWorld().registryAccess())
                 TypedDataComponent.STREAM_CODEC.encode(buffer, component)
-                val base64Encoded = Base64.Mime.encode(buffer.toByteArraySafe())
+                val base64Encoded = buffer.toString(Charset.defaultCharset())
                 encodedComponents[protocolId] = base64Encoded
 
-                log("- ${component.type}: $base64Encoded")
+                log("- ${component.type}: $base64Encoded (${buffer.readableBytes()})")
             }
             val registryItem = Item(
                 identifier,
