@@ -21,7 +21,7 @@ class EntityRegistryGenerator: DataGenerator {
     val file = File("./out/entity_type_registry.json.gz")
 
     override fun run() {
-        val registry = getWorld().registryAccess().registry(Registries.ENTITY_TYPE).get()
+        val registry = getWorld().registryAccess().lookup(Registries.ENTITY_TYPE).get()
         val protocolIdCounter = AtomicInteger()
 
         registry.forEach { entity ->
@@ -52,7 +52,7 @@ class EntityRegistryGenerator: DataGenerator {
             val category = entity.category.name
             val fireImmune = entity.fireImmune()
 
-            val blockRegistry = getWorld().registryAccess().registry(Registries.BLOCK).get()
+            val blockRegistry = getWorld().registryAccess().lookup(Registries.BLOCK).get()
             val immuneBlocks = (entity as EntityTypeAccessor).immuneTo.map { blockRegistry.getKey(it)!!.path }
 
             val displayName = entity.description.string

@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import net.minecraft.core.component.DataComponents
 import net.minecraft.core.component.TypedDataComponent
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -27,9 +28,9 @@ class ItemRegistryGenerator : DataGenerator {
 
     @OptIn(ExperimentalEncodingApi::class)
     override fun run() {
-        val registry = getWorld().registryAccess().registry(Registries.ITEM).get()
-        val blockRegistry = getWorld().registryAccess().registry(Registries.BLOCK).get()
-        val componentRegistry = getWorld().registryAccess().registry(Registries.DATA_COMPONENT_TYPE).get()
+        val registry = getWorld().registryAccess().lookup(Registries.ITEM).get()
+        val blockRegistry = getWorld().registryAccess().lookup(Registries.BLOCK).get()
+        val componentRegistry = getWorld().registryAccess().lookup(Registries.DATA_COMPONENT_TYPE).get()
 
         val blocks = blockRegistry.map { "minecraft:${blockRegistry.getKey(it)!!.path}" }
 
@@ -37,8 +38,7 @@ class ItemRegistryGenerator : DataGenerator {
             val identifier = "minecraft:${registry.getKey(item)!!.path}"
             val displayName = item.defaultInstance.displayName.string
             val maxStack = item.defaultMaxStackSize
-            val drinkingSound = "minecraft:${item.drinkingSound.location.path}"
-            val eatingSound = "minecraft:${item.eatingSound.location.path}"
+            val consumeSound = getConsumeSound(item)
             val canFitInsideContainers = item.canFitInsideContainerItems()
             val isEnchantable = item.defaultInstance.isEnchantable
             val isStackable = item.defaultInstance.isStackable
@@ -95,8 +95,7 @@ class ItemRegistryGenerator : DataGenerator {
                 identifier,
                 displayName,
                 maxStack,
-                drinkingSound,
-                eatingSound,
+                consumeSound,
                 canFitInsideContainers,
                 isEnchantable,
                 isStackable,
@@ -118,6 +117,12 @@ class ItemRegistryGenerator : DataGenerator {
 
         file.writeBytes(compressedData.toByteArray())
     }
+
+    private fun getConsumeSound(item: net.minecraft.world.item.Item): String {
+        val defaultInstance = item.defaultInstance
+        val consumable = defaultInstance[DataComponents.CONSUMABLE] ?: return "minecraft:entity.generic.eat"
+        return "minecraft:${consumable.sound.value().location.path}"
+    }
 }
 
 @Serializable
@@ -125,8 +130,7 @@ data class Item(
     val identifier: String,
     val displayName: String,
     val maxStack: Int,
-    val drinkingSound: String,
-    val eatingSound: String,
+    val consumeSound: String,
     val canFitInsideContainers: Boolean,
     val isEnchantable: Boolean,
     val isStackable: Boolean,

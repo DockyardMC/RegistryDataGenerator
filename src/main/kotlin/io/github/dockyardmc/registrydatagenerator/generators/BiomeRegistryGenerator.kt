@@ -20,8 +20,8 @@ class BiomeRegistryGenerator: DataGenerator {
     val file = File("./out/biome_registry.json.gz")
 
     override fun run() {
-        val registry = getWorld().registryAccess().registry(Registries.BIOME).get()
-        val particleRegistry = getWorld().registryAccess().registry(Registries.PARTICLE_TYPE).get()
+        val registry = getWorld().registryAccess().lookup(Registries.BIOME).get()
+        val particleRegistry = getWorld().registryAccess().lookup(Registries.PARTICLE_TYPE).get()
 
         registry.forEach { biome ->
 

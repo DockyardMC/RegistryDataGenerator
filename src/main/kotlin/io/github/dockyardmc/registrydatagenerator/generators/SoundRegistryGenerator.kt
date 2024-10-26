@@ -11,7 +11,7 @@ class SoundRegistryGenerator: DataGenerator {
     private val file = File("./out/Sounds.kt")
 
     override fun run() {
-        val registry = getWorld().registryAccess().registry(Registries.SOUND_EVENT).get()
+        val registry = getWorld().registryAccess().lookup(Registries.SOUND_EVENT).get()
         val contents = buildString {
             append("package io.github.dockyardmc.registry\n")
             append("\n")

@@ -4,9 +4,7 @@ import io.github.dockyardmc.registrydatagenerator.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
-import net.minecraft.world.level.EmptyBlockGetter
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.properties.BooleanProperty
 import java.io.ByteArrayOutputStream
@@ -19,9 +17,9 @@ class BlockRegistryGenerator : DataGenerator {
     val file = File("./out/block_registry.json.gz")
 
     override fun run() {
-        val blockRegistry = getWorld().registryAccess().registry(Registries.BLOCK)
-        blockRegistry.get().forEach { block ->
-            val identifier = "minecraft:${blockRegistry.get().getKeyOrThrow(block).path}"
+        val blockRegistry = getWorld().registryAccess().lookup(Registries.BLOCK).get()
+        blockRegistry.forEach { block ->
+            val identifier = "minecraft:${blockRegistry.getKeyOrThrow(block).path}"
             val defaultBlockState = block.defaultBlockState()
             val displayName = translate(block.descriptionId)
             val explosionResistance = block.explosionResistance
@@ -36,7 +34,7 @@ class BlockRegistryGenerator : DataGenerator {
                 walkSound = "minecraft:${defaultBlockState.soundType.stepSound.location.path}",
             )
             val isBlockEntity = defaultBlockState.hasBlockEntity()
-            val lightFilter = defaultBlockState.getLightBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO)
+            val lightFilter = defaultBlockState.lightBlock
             val isAir = defaultBlockState.isAir
             val isSolid = defaultBlockState.isSolid
             val isLiquid = defaultBlockState.liquid()
@@ -64,12 +62,12 @@ class BlockRegistryGenerator : DataGenerator {
                 val name = property.name
                 val type = getPropertyTypeName(property)
                 val values = mutableListOf<String>()
-                if(property !is BooleanProperty) {
+                if (property !is BooleanProperty) {
                     property.possibleValues.forEach {
                         values.add(it.toString())
                     }
                 }
-                val valuesArray = if(values.isEmpty()) null else values
+                val valuesArray = if (values.isEmpty()) null else values
                 blockStateList.add(
                     RegistryBlockState(name, type, valuesArray)
                 )
