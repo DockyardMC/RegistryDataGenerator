@@ -1,15 +1,18 @@
 package io.github.dockyardmc.registrydatagenerator.generators
 
 import cz.lukynka.prettylog.log
+import io.github.dockyardmc.registrydatagenerator.ComponentFile
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import io.github.dockyardmc.registrydatagenerator.getWorld
 import io.netty.buffer.Unpooled
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.component.TypedDataComponent
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.component.ItemAttributeModifiers
@@ -17,7 +20,6 @@ import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.charset.Charset
 import java.util.zip.GZIPOutputStream
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -25,6 +27,8 @@ class ItemRegistryGenerator : DataGenerator {
 
     private val items: MutableList<Item> = mutableListOf()
     private val file = File("./out/item_registry.json.gz")
+
+    private val defaultComponents: MutableMap<String, MutableMap<Int, FriendlyByteBuf>> = mutableMapOf()
 
     @OptIn(ExperimentalEncodingApi::class)
     override fun run() {
@@ -46,7 +50,7 @@ class ItemRegistryGenerator : DataGenerator {
             val isBlock = blocks.contains(identifier)
 
             val components = item.components()
-            val encodedComponents: MutableMap<Int, String> = mutableMapOf()
+            val encodedComponents: MutableMap<Int, FriendlyByteBuf> = mutableMapOf()
             log(" ")
             log("$identifier:")
             components.forEach componentLoop@{ component ->
@@ -85,12 +89,17 @@ class ItemRegistryGenerator : DataGenerator {
                 val protocolId = componentRegistry.getId(component.type)
 
                 val buffer = RegistryFriendlyByteBuf(Unpooled.buffer(), getWorld().registryAccess())
-                TypedDataComponent.STREAM_CODEC.encode(buffer, component)
-                val base64Encoded = buffer.toString(Charset.defaultCharset())
-                encodedComponents[protocolId] = base64Encoded
 
-                log("- ${component.type}: $base64Encoded (${buffer.readableBytes()})")
+//                TypedDataComponent.STREAM_CODEC.encode(buffer, component)
+                encodeCap(buffer, component)
+
+                encodedComponents[protocolId] = buffer
+
+                log("- ${component.type} (${buffer.readableBytes()})")
             }
+
+            defaultComponents[identifier] = encodedComponents
+
             val registryItem = Item(
                 identifier,
                 displayName,
@@ -101,7 +110,6 @@ class ItemRegistryGenerator : DataGenerator {
                 isStackable,
                 isDamageable,
                 isBlock,
-                encodedComponents
             )
             items.add(registryItem)
 
@@ -116,12 +124,22 @@ class ItemRegistryGenerator : DataGenerator {
         gzipOutputStream.close()
 
         file.writeBytes(compressedData.toByteArray())
+
+        val componentFile = ComponentFile(File("./out/components.bin"), defaultComponents)
+        componentFile.write()
     }
 
     private fun getConsumeSound(item: net.minecraft.world.item.Item): String {
         val defaultInstance = item.defaultInstance
         val consumable = defaultInstance[DataComponents.CONSUMABLE] ?: return "minecraft:entity.generic.eat"
         return "minecraft:${consumable.sound.value().location.path}"
+    }
+
+    private fun <T> encodeCap(
+        registryFriendlyByteBuf: RegistryFriendlyByteBuf,
+        typedDataComponent: TypedDataComponent<T>,
+    ) {
+        typedDataComponent.type.streamCodec().encode(registryFriendlyByteBuf, typedDataComponent.value!!)
     }
 }
 
@@ -136,5 +154,4 @@ data class Item(
     val isStackable: Boolean,
     val isDamageable: Boolean,
     val isBlock: Boolean,
-    val encodedComponents: MutableMap<Int, String>
 )

@@ -32,7 +32,7 @@ class BiomeRegistryGenerator: DataGenerator {
             val particleIsPresent = biome.ambientParticle.isPresent
             val particleKey = if(particleIsPresent) particleRegistry.getKey(biome.ambientParticle.get().options.type) else null
             val particle = if(particleIsPresent) {
-                BiomeParticle(ParticleOptions(particleKey!!.path), (biome.ambientParticle.get() as AmbientParticleSettingsAccessor).probability)
+                BiomeParticles(ParticleOptions(particleKey!!.path), (biome.ambientParticle.get() as AmbientParticleSettingsAccessor).probability)
             } else null
 
             val moodSoundIsPresent = biome.ambientMood.isPresent
@@ -44,13 +44,13 @@ class BiomeRegistryGenerator: DataGenerator {
             val ambientAdditionsPresent = biome.ambientAdditions.isPresent
             val ambientAdditions = if(ambientAdditionsPresent) {
                 val ambientAdditions = biome.ambientAdditions.get()
-                AdditionsSound(ambientAdditions.soundEvent.registeredName, ambientAdditions.tickChance)
+                AmbientAdditions(ambientAdditions.soundEvent.registeredName, ambientAdditions.tickChance)
             } else null
 
             val musicPresent = biome.backgroundMusic.isPresent
             val music = if(musicPresent) {
                 val backgroundMusic = biome.backgroundMusic.get()
-                BackgroundMusic(backgroundMusic.maxDelay, backgroundMusic.minDelay, backgroundMusic.replaceCurrentMusic(), backgroundMusic.event.registeredName)
+                backgroundMusic.unwrap().map { WeightedBackgroundMusic(BackgroundMusic(it.data.maxDelay, it.data.minDelay, it.data.replaceCurrentMusic(), it.data.event.registeredName), it.weight.asInt()) }
             } else null
 
             val registryBiome = Biome(
@@ -71,6 +71,7 @@ class BiomeRegistryGenerator: DataGenerator {
                     moodSound = moodSound,
                     ambientAdditions = ambientAdditions,
                     music = music,
+                    musicVolume = biome.backgroundMusicVolume,
                     ambientLoop = if(biome.ambientLoop.isPresent) biome.ambientLoop.get().registeredName else null
                 ),
             )
@@ -103,33 +104,34 @@ data class Biome(
 data class Effects(
     val fogColor: Int? = null,
     val foliageColor: Int? = null,
+    val grassColor: Int? = null,
+    val grassColorModifier: String? = null,
     val moodSound: MoodSound? = null,
-    val music: BackgroundMusic? = null,
-    val ambientAdditions: AdditionsSound? = null,
+    val music: List<WeightedBackgroundMusic>? = null,
+    val musicVolume: Float? = null,
+    val ambientAdditions: AmbientAdditions? = null,
     val ambientLoop: String? = null,
-    val particle: BiomeParticle? = null,
+    val particle: BiomeParticles? = null,
     val skyColor: Int,
     val waterColor: Int,
     val waterFogColor: Int,
-    val grassColorModifier: String? = null,
-    val grassColor: Int? = null
+)
+
+@Serializable
+data class BiomeParticles(
+    val options: ParticleOptions,
+    val probability: Float,
+)
+
+@Serializable
+data class AmbientAdditions(
+    val sound: String,
+    val tickChance: Double,
 )
 
 @Serializable
 data class ParticleOptions(
     val type: String
-)
-
-@Serializable
-data class BiomeParticle(
-    val options: ParticleOptions,
-    val probability: Float
-)
-
-@Serializable
-data class AdditionsSound(
-    val sound: String,
-    val tickChance: Double
 )
 
 @Serializable
@@ -147,3 +149,6 @@ data class MoodSound(
     val sound: String,
     val tickDelay: Int
 )
+
+@Serializable
+data class WeightedBackgroundMusic(val music: BackgroundMusic, val weight: Int)

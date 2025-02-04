@@ -6,7 +6,17 @@ import io.github.dockyardmc.registrydatagenerator.generators.*
 
 object DataGenerators {
 
-    private val generators: MutableList<DataGenerator> = mutableListOf(BlockRegistryGenerator(), BiomeRegistryGenerator(), EntityRegistryGenerator(), SoundRegistryGenerator(), ItemRegistryGenerator())
+    private val generators: MutableList<DataGenerator> = mutableListOf(
+        BlockRegistryGenerator(),
+        BiomeRegistryGenerator(),
+        EntityRegistryGenerator(),
+        ItemRegistryGenerator(),
+        SoundListGenerator(),
+        BlockListGenerator(),
+        EntityTypeListGenerator(),
+        ItemListGenerator(),
+        ParticleListGenerator(),
+    )
 
     fun run() {
         generators.forEach {

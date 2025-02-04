@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
     id("fabric-loom") version "1.8.9"
-    kotlin("plugin.serialization") version "2.0.20"
     id("maven-publish")
 }
 
@@ -37,6 +37,8 @@ loom {
 }
 
 repositories {
+    mavenCentral()
+    maven("https://jitpack.io")
     maven {
         name = "devOS"
         url = uri("https://mvn.devos.one/releases")
@@ -44,6 +46,12 @@ repositories {
 }
 
 dependencies {
+
+    implementation("cz.lukynka:pretty-log:1.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+
     // To change the versions see the gradle.properties file
     minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
     mappings(loom.officialMojangMappings())
@@ -52,10 +60,6 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
-    implementation("cz.lukynka:pretty-log:1.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
 }
 
 tasks.processResources {
@@ -85,28 +89,4 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions.jvmTarget.set(JvmTarget.fromTarget(targetJavaVersion.toString()))
-}
-
-tasks.jar {
-    from("LICENSE") {
-        rename { "${it}_${project.base.archivesName}" }
-    }
-}
-
-// configure the maven publication
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            artifactId = project.property("archives_base_name") as String
-            from(components["java"])
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
 }
