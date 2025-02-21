@@ -1,4 +1,4 @@
-package io.github.dockyardmc.registrydatagenerator.generators
+package io.github.dockyardmc.registrydatagenerator.generators.lists
 
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import kotlinx.serialization.encodeToString
@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream
 class SoundListGenerator: DataGenerator {
 
     private val sounds: MutableList<String> = mutableListOf()
-    private val listFile = File("./out/Sounds.kt")
+    private val listFile = File("./out/classes/Sounds.kt")
 
     private val file = File("./out/sound_registry.json.gz")
 

@@ -1,4 +1,4 @@
-package io.github.dockyardmc.registrydatagenerator.generators
+package io.github.dockyardmc.registrydatagenerator.generators.lists
 
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import io.github.dockyardmc.registrydatagenerator.getKeyOrThrow
@@ -9,7 +9,7 @@ import java.io.File
 class BlockListGenerator: DataGenerator {
 
     private val blocks: MutableList<String> = mutableListOf()
-    private val file = File("./out/Blocks.kt")
+    private val file = File("./out/classes/Blocks.kt")
 
     override fun run() {
         val registry = getWorld().registryAccess().lookup(Registries.BLOCK).get()

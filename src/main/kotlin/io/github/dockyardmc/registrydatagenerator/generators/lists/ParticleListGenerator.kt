@@ -1,4 +1,4 @@
-package io.github.dockyardmc.registrydatagenerator.generators
+package io.github.dockyardmc.registrydatagenerator.generators.lists
 
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import net.minecraft.core.registries.BuiltInRegistries
@@ -7,7 +7,7 @@ import java.io.File
 class ParticleListGenerator: DataGenerator {
 
     private val sounds: MutableList<String> = mutableListOf()
-    private val listFile = File("./out/Particles.kt")
+    private val listFile = File("./out/classes/Particles.kt")
 
     override fun run() {
         val registry = BuiltInRegistries.PARTICLE_TYPE

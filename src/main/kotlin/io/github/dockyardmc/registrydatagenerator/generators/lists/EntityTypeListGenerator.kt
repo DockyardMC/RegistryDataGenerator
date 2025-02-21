@@ -1,4 +1,4 @@
-package io.github.dockyardmc.registrydatagenerator.generators
+package io.github.dockyardmc.registrydatagenerator.generators.lists
 
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import io.github.dockyardmc.registrydatagenerator.getKeyOrThrow
@@ -9,7 +9,7 @@ import java.io.File
 class EntityTypeListGenerator: DataGenerator {
 
     private val entityTypes: MutableList<String> = mutableListOf()
-    private val file = File("./out/EntityTypes.kt")
+    private val file = File("./out/classes/EntityTypes.kt")
 
     override fun run() {
         val registry = getWorld().registryAccess().lookup(Registries.ENTITY_TYPE).get()
