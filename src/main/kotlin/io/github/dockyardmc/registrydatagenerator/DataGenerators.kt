@@ -8,7 +8,7 @@ import java.io.File
 
 object DataGenerators {
 
-    private val generators: MutableList<DataGenerator> = mutableListOf(
+    val generators: MutableList<DataGenerator> = mutableListOf(
         BlockRegistryGenerator(),
         BiomeRegistryGenerator(),
         EntityRegistryGenerator(),
@@ -22,6 +22,14 @@ object DataGenerators {
         TagRegistryGenerator(),
         TagListGenerator(),
         FluidRegistryGenerator(),
+        AttributeRegistryGenerator(),
+        AttributeListGenerator(),
+        WolfVariantRegistryGenerator(),
+        WolfSoundVariantRegistryGenerator(),
+        ChickenVariantDataGenerator(),
+        PigVariantDataGenerator(),
+        CowVariantDataGenerator(),
+        CatVariantDataGenerator(),
     )
 
     fun run() {

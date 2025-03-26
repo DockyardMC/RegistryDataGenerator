@@ -5,7 +5,6 @@ import io.github.dockyardmc.registrydatagenerator.getWorld
 import io.github.dockyardmc.registrydatagenerator.mixin.AmbientParticleSettingsAccessor
 import io.github.dockyardmc.registrydatagenerator.mixin.BiomeAccessor
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.level.biome.BiomeSpecialEffects.GrassColorModifier
@@ -50,7 +49,13 @@ class BiomeRegistryGenerator: DataGenerator {
             val musicPresent = biome.backgroundMusic.isPresent
             val music = if(musicPresent) {
                 val backgroundMusic = biome.backgroundMusic.get()
-                backgroundMusic.unwrap().map { WeightedBackgroundMusic(BackgroundMusic(it.data.maxDelay, it.data.minDelay, it.data.replaceCurrentMusic(), it.data.event.registeredName), it.weight.asInt()) }
+                backgroundMusic.unwrap().map { weighted ->
+                    WeightedBackgroundMusic(BackgroundMusic(
+                        maxDelay = weighted.value.maxDelay,
+                        minDelay = weighted.value.minDelay,
+                        replaceCurrentMusic = weighted.value.replaceCurrentMusic(),
+                        sound = weighted.value.event.registeredName
+                    ), weighted.weight) }
             } else null
 
             val registryBiome = Biome(

@@ -51,8 +51,8 @@ class ItemRegistryGenerator : DataGenerator {
 
             val components = item.components()
             val encodedComponents: MutableMap<Int, FriendlyByteBuf> = mutableMapOf()
-            log(" ")
-            log("$identifier:")
+//            log(" ")
+//            log("$identifier:")
             components.forEach componentLoop@{ component ->
                 when (component.type.toString()) {
                     "minecraft:max_stack_size" -> {
@@ -95,7 +95,7 @@ class ItemRegistryGenerator : DataGenerator {
 
                 encodedComponents[protocolId] = buffer
 
-                log("- ${component.type} (${buffer.readableBytes()})")
+//                log("- ${component.type} (${buffer.readableBytes()})")
             }
 
             defaultComponents[identifier] = encodedComponents
