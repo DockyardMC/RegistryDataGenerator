@@ -13,9 +13,8 @@ class ChickenVariantDataGenerator : AbstractDataGenerator<ChickenVariant>("chick
         registry.forEach { chickenVariant ->
             val id = registry.getKey(chickenVariant)!!.path
             values[id] = ChickenVariant(
-                model = chickenVariant.modelAndTexture.model.serializedName,
-                texture = chickenVariant.modelAndTexture.asset.toDockyard(),
-                biomes = listOf()
+                identifier = id,
+                assetId = chickenVariant.modelAndTexture.asset.toDockyard().id,
             )
         }
         writeFile { Json.encodeToString<List<ChickenVariant>>(values.values.toList()) }
@@ -24,7 +23,6 @@ class ChickenVariantDataGenerator : AbstractDataGenerator<ChickenVariant>("chick
 
 @Serializable
 data class ChickenVariant(
-    val model: String,
-    val texture: ClientAsset,
-    val biomes: List<String>,
+    val identifier: String,
+    val assetId: String,
 )

@@ -13,9 +13,8 @@ class CowVariantDataGenerator : AbstractDataGenerator<CowVariant>("cow_variant",
         registry.forEach { cowVariant ->
             val id = registry.getKey(cowVariant)!!.path
             values[id] = CowVariant(
-                model = cowVariant.modelAndTexture.model.serializedName,
-                texture = cowVariant.modelAndTexture.asset.toDockyard(),
-                biomes = listOf()
+                identifier = id,
+                assetId = cowVariant.modelAndTexture.asset.toDockyard().id,
             )
         }
         writeFile { Json.encodeToString<List<CowVariant>>(values.values.toList()) }
@@ -24,7 +23,6 @@ class CowVariantDataGenerator : AbstractDataGenerator<CowVariant>("cow_variant",
 
 @Serializable
 data class CowVariant(
-    val model: String,
-    val texture: ClientAsset,
-    val biomes: List<String>,
+    val identifier: String,
+    val assetId: String,
 )

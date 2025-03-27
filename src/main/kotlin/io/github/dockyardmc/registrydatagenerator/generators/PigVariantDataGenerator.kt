@@ -13,9 +13,8 @@ class PigVariantDataGenerator : AbstractDataGenerator<PigVariant>("pig_variant",
         registry.forEach { pigVariant ->
             val id = registry.getKey(pigVariant)!!.path
             values[id] = PigVariant(
-                model = pigVariant.modelAndTexture.model.serializedName,
-                texture = pigVariant.modelAndTexture.asset.toDockyard(),
-                biomes = listOf()
+                identifier = id,
+                assetId = pigVariant.modelAndTexture.asset.toDockyard().id,
             )
         }
         writeFile { Json.encodeToString<List<PigVariant>>(values.values.toList()) }
@@ -24,7 +23,6 @@ class PigVariantDataGenerator : AbstractDataGenerator<PigVariant>("pig_variant",
 
 @Serializable
 data class PigVariant(
-    val model: String,
-    val texture: ClientAsset,
-    val biomes: List<String>,
+    val identifier: String,
+    val assetId: String,
 )

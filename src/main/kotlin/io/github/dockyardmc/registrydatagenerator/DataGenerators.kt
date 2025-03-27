@@ -30,6 +30,7 @@ object DataGenerators {
         PigVariantDataGenerator(),
         CowVariantDataGenerator(),
         CatVariantDataGenerator(),
+        FrogVariantDataGenerator(),
     )
 
     fun run() {
