@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registrydatagenerator.generators
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registrydatagenerator.getWorld
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -13,11 +14,13 @@ class WolfVariantRegistryGenerator : AbstractDataGenerator<WolfVariant>("wolf_va
         registry.forEach { wolfVariant ->
             val id = registry.getKey(wolfVariant)!!.path
             values[id] = WolfVariant(
-                angry = wolfVariant.assetInfo.angry.toDockyard(),
-                tame = wolfVariant.assetInfo.tame.toDockyard(),
-                wild = wolfVariant.assetInfo.tame.toDockyard(),
-                biomes = listOf() // dockyard will not use that anyway
+                identifier = id,
+                angry = wolfVariant.assetInfo.angry.toDockyard().id,
+                tame = wolfVariant.assetInfo.tame.toDockyard().id,
+                wild = wolfVariant.assetInfo.tame.toDockyard().id,
             )
+
+            log("Wolf - id ${wolfVariant.assetInfo.angry.id} | texture - ${wolfVariant.assetInfo.angry.texturePath.path}")
         }
         writeFile { Json.encodeToString<List<WolfVariant>>(values.values.toList()) }
     }
@@ -29,10 +32,10 @@ fun net.minecraft.core.ClientAsset.toDockyard(): ClientAsset {
 
 @Serializable
 data class WolfVariant(
-    val angry: ClientAsset,
-    val tame: ClientAsset,
-    val wild: ClientAsset,
-    val biomes: List<String>,
+    val identifier: String,
+    val angry: String,
+    val tame: String,
+    val wild: String,
 )
 
 @Serializable

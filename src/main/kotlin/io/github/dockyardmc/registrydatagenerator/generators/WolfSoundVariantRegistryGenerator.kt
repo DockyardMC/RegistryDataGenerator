@@ -1,5 +1,6 @@
 package io.github.dockyardmc.registrydatagenerator.generators
 
+import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registrydatagenerator.getWorld
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -13,6 +14,7 @@ class WolfSoundVariantRegistryGenerator : AbstractDataGenerator<WolfSoundVariant
         registry.forEach { wolfVariant ->
             val id = registry.getKey(wolfVariant)!!.path
             values[id] = WolfSoundVariant(
+                identifier = id,
                 ambientSound = wolfVariant.ambientSound.registeredName,
                 deathSound = wolfVariant.deathSound.registeredName,
                 growlSound = wolfVariant.growlSound.registeredName,
@@ -27,6 +29,7 @@ class WolfSoundVariantRegistryGenerator : AbstractDataGenerator<WolfSoundVariant
 
 @Serializable
 data class WolfSoundVariant(
+    val identifier: String,
     val ambientSound: String,
     val deathSound: String,
     val growlSound: String,
