@@ -13,7 +13,8 @@ class CatVariantDataGenerator : AbstractDataGenerator<CatVariant>("cat_variant",
         registry.forEach { catVariant ->
             val id = registry.getKey(catVariant)!!.path
             values[id] = CatVariant(
-                textures = catVariant.assetInfo.toDockyard(),
+                identifier = id,
+                assetId = catVariant.assetInfo.toDockyard().id,
             )
         }
         writeFile { Json.encodeToString<List<CatVariant>>(values.values.toList()) }
@@ -22,5 +23,6 @@ class CatVariantDataGenerator : AbstractDataGenerator<CatVariant>("cat_variant",
 
 @Serializable
 data class CatVariant(
-    val textures: ClientAsset,
+    val identifier: String,
+    val assetId: String,
 )
