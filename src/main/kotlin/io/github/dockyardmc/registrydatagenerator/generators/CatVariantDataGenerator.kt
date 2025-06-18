@@ -11,7 +11,7 @@ class CatVariantDataGenerator : AbstractDataGenerator<CatVariant>("cat_variant",
         val registry = getWorld().registryAccess().lookup(Registries.CAT_VARIANT).get()
 
         registry.forEach { catVariant ->
-            val id = registry.getKey(catVariant)!!.path
+            val id = registry.getKey(catVariant)!!.toString()
             values[id] = CatVariant(
                 identifier = id,
                 assetId = catVariant.assetInfo.toDockyard().id,

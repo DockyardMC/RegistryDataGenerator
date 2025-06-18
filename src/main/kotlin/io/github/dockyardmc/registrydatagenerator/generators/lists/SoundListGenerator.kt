@@ -22,7 +22,7 @@ class SoundListGenerator: DataGenerator {
             append("\n")
             append("object Sounds {\n")
             registry.sortedBy { registry.getId(it) }.forEach { sound ->
-                val path = registry.getKey(sound)!!.path
+                val path = registry.getKey(sound)!!.toString()
                 val variableName = sound.location.path.replace(".", "_").uppercase()
 
                 sounds.add(path)

@@ -5,7 +5,6 @@ import cz.lukynka.prettylog.log
 import io.github.dockyardmc.registrydatagenerator.DataGenerator
 import io.github.dockyardmc.registrydatagenerator.getWorld
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries

@@ -11,7 +11,7 @@ class PigVariantDataGenerator : AbstractDataGenerator<PigVariant>("pig_variant",
         val registry = getWorld().registryAccess().lookup(Registries.PIG_VARIANT).get()
 
         registry.forEach { pigVariant ->
-            val id = registry.getKey(pigVariant)!!.path
+            val id = registry.getKey(pigVariant)!!.toString()
             values[id] = PigVariant(
                 identifier = id,
                 assetId = pigVariant.modelAndTexture.asset.toDockyard().id,

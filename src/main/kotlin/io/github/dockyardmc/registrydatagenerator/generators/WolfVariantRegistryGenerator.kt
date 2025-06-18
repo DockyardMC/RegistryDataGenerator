@@ -12,7 +12,7 @@ class WolfVariantRegistryGenerator : AbstractDataGenerator<WolfVariant>("wolf_va
         val registry = getWorld().registryAccess().lookup(Registries.WOLF_VARIANT).get()
 
         registry.forEach { wolfVariant ->
-            val id = registry.getKey(wolfVariant)!!.path
+            val id = registry.getKey(wolfVariant)!!.toString()
             values[id] = WolfVariant(
                 identifier = id,
                 angry = wolfVariant.assetInfo.angry.toDockyard().id,

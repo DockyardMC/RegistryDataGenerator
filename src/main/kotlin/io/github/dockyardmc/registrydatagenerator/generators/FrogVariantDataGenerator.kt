@@ -11,7 +11,7 @@ class FrogVariantDataGenerator : AbstractDataGenerator<FrogVariant>("frog_varian
         val registry = getWorld().registryAccess().lookup(Registries.FROG_VARIANT).get()
 
         registry.forEach { frogVariant ->
-            val id = registry.getKey(frogVariant)!!.path
+            val id = registry.getKey(frogVariant)!!.toString()
             values[id] = FrogVariant(
                 identifier = id,
                 assetId = frogVariant.assetInfo.toDockyard().id,

@@ -12,7 +12,7 @@ class WolfSoundVariantRegistryGenerator : AbstractDataGenerator<WolfSoundVariant
         val registry = getWorld().registryAccess().lookup(Registries.WOLF_SOUND_VARIANT).get()
 
         registry.forEach { wolfVariant ->
-            val id = registry.getKey(wolfVariant)!!.path
+            val id = registry.getKey(wolfVariant)!!.toString()
             values[id] = WolfSoundVariant(
                 identifier = id,
                 ambientSound = wolfVariant.ambientSound.registeredName,

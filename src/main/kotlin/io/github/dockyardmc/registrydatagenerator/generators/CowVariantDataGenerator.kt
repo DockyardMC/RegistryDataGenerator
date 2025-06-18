@@ -11,7 +11,7 @@ class CowVariantDataGenerator : AbstractDataGenerator<CowVariant>("cow_variant",
         val registry = getWorld().registryAccess().lookup(Registries.COW_VARIANT).get()
 
         registry.forEach { cowVariant ->
-            val id = registry.getKey(cowVariant)!!.path
+            val id = registry.getKey(cowVariant)!!.toString()
             values[id] = CowVariant(
                 identifier = id,
                 assetId = cowVariant.modelAndTexture.asset.toDockyard().id,

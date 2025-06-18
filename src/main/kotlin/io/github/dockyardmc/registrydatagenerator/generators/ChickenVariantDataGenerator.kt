@@ -11,7 +11,7 @@ class ChickenVariantDataGenerator : AbstractDataGenerator<ChickenVariant>("chick
         val registry = getWorld().registryAccess().lookup(Registries.CHICKEN_VARIANT).get()
 
         registry.forEach { chickenVariant ->
-            val id = registry.getKey(chickenVariant)!!.path
+            val id = registry.getKey(chickenVariant)!!.toString()
             values[id] = ChickenVariant(
                 identifier = id,
                 assetId = chickenVariant.modelAndTexture.asset.toDockyard().id,
