@@ -31,9 +31,14 @@ abstract class AbstractDataGenerator<T>(val name: String, val objectName: String
             append("\n")
             append("object $objectName {\n")
             values.forEach { value ->
-                val location = value.key
+                val location = value.key.replace("minecraft:", "")
                 val path = "minecraft:${location}"
-                val variableName = location.replace(".", "_").uppercase()
+                var variableName = location.replace(".", "_").uppercase()
+                when(variableName) {
+                    "11" -> variableName = "ELEVEN"
+                    "13" -> variableName = "THIRTEEN"
+                    "5" -> variableName = "FIVE"
+                }
 
                 append("    val $variableName = $registryClassName[\"${path}\"]\n")
             }
